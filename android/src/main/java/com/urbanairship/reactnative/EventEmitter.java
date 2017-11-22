@@ -56,13 +56,25 @@ class EventEmitter {
             return;
         }
 
-        ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
+        final ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
         if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
-            emit(reactContext, event.getName(), event.getBody());
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    emit(reactContext, event.getName(), event.getBody());
+                }
+            }, 3500);
         } else if (event.isCritical() || reactInstanceManager.hasStartedCreatingInitialContext()) {
             reactInstanceManager.addReactInstanceEventListener(new ReactInstanceManager.ReactInstanceEventListener() {
-                public void onReactContextInitialized(ReactContext reactContext) {
-                    emit(reactContext, event.getName(), event.getBody());
+                public void onReactContextInitialized(final ReactContext reactContext) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            emit(reactContext, event.getName(), event.getBody());
+                        }
+                    }, 3500);
                     reactInstanceManager.removeReactInstanceEventListener(this);
                 }
             });
